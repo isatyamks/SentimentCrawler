@@ -1,3 +1,5 @@
+#Importing the Required dependencies
+
 import string
 import re
 import os
@@ -7,22 +9,15 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-
-
-
-
-
-
-csv_file = "input.csv" 
-save_dir = "articles"  
-
-# Example usage
-articles_folder = "articles"  # Folder containing articles
+#Taking Input of Required files
+csv_file = "output.csv" 
+articles_dir = "articles"
 positive_words_file = "MasterDictionary\\positive-words.txt"
 negative_words_file = "MasterDictionary\\negative-words.txt"
-csv_file = "output.csv"
 
 
+# This section extracts articles from URLs and saves them in a directory with the URL_ID as the filename
+###################################################################################################
 
 def extract_article(url):
     response = requests.get(url)
@@ -37,14 +32,14 @@ def extract_article(url):
     return article_text
 
 
-def save_to_file(file_id, article_text, save_dir):
-    os.makedirs(save_dir, exist_ok=True) 
-    filename = os.path.join(save_dir, f"{file_id}.txt")  
+def save_to_file(file_id, article_text, articles_dir):
+    os.makedirs(articles_dir, exist_ok=True) 
+    filename = os.path.join(articles_dir, f"{file_id}.txt")  
     with open(filename, 'w', encoding='utf-8') as file:
         file.write(article_text)
 
 
-def process_csv(csv_file, save_dir):
+def process_csv(csv_file, articles_dir):
     with open(csv_file, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file) 
         for row in reader:
@@ -53,8 +48,9 @@ def process_csv(csv_file, save_dir):
             print(f"Processing ID: {file_id} is Completed!")
             article_text = extract_article(url)
             if article_text:
-                save_to_file(file_id, article_text, save_dir)
+                save_to_file(file_id, article_text, articles_dir)
 
+#########################################################################################################
 
 
 def count_syllables(word):
@@ -80,7 +76,6 @@ def preprocess_text(article):
     translator = str.maketrans('', '', string.punctuation)
     return article.translate(translator).lower()
 
-# Master Function to Analyze Text
 def analyze_text(article_file, positive_words_file, negative_words_file):
     # Load words and text
     positive_words = load_words(positive_words_file)
@@ -91,6 +86,9 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
     total_sentences = len(sentences)
     preprocessed_article = preprocess_text(article)
     words = preprocessed_article.split()
+
+
+    # Calculating all the required variables for each article document
     r=3
     positive_count = sum(1 for word in words if word in positive_words)
     negative_count = sum(1 for word in words if word in negative_words)
@@ -103,7 +101,7 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
     fog_index = round((0.4 * (avg_sentence_length + percentage_complex_words)),r)
     syllables = sum(count_syllables(word) for word in words)
     syllables_per_word = round((syllables / total_words),r)
-    pronouns = re.findall(r'\b(I|we|you|he|she|it|they|me|us|him|her|them|my|our|your|his|their)\b', article, re.IGNORECASE)
+    pronouns = re.findall(r'\b(I|we|you|he|she|it|they|me|us(?!\b)|him|her|them|my|our|your|his|their)\b', article, re.IGNORECASE) # Using a negative lookahead to avoid matching 'us' as part of 'US'
     personal_pronouns = len(pronouns)
     avg_word_length = int(sum(len(word) for word in words) / total_words)
     
@@ -125,51 +123,25 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
     }
 
 
-def process_articles(articles_folder, positive_words_file, negative_words_file, csv_file):
-    # Load positive and negative word lists
+def process_articles(articles_dir, positive_words_file, negative_words_file, csv_file):
     positive_words = load_words(positive_words_file)
     negative_words = load_words(negative_words_file)
-    
-    # Load the existing CSV file
-    if os.path.exists(csv_file):
-        df = pd.read_csv(csv_file)
-    else:
-        raise FileNotFoundError(f"CSV file {csv_file} does not exist.")
-    
-    # Convert column names to uppercase for consistent matching
+    df = pd.read_csv(csv_file)
     df.columns = df.columns.str.upper()
-
-    # Ensure the necessary columns exist in the CSV
     required_columns = [
         "URL_ID", "URL", "POSITIVE SCORE", "NEGATIVE SCORE", "POLARITY SCORE", 
         "SUBJECTIVITY SCORE", "AVG SENTENCE LENGTH", "PERCENTAGE OF COMPLEX WORDS", 
         "FOG INDEX", "AVG NUMBER OF WORDS PER SENTENCE", "COMPLEX WORD COUNT", 
         "WORD COUNT", "SYLLABLE PER WORD", "PERSONAL PRONOUNS", "AVG WORD LENGTH"
     ]
-    
-    # Check if all required columns exist
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        raise ValueError(f"Missing columns in CSV file: {', '.join(missing_columns)}")
-    
-    # Iterate through all articles in the folder
-    for article_file in os.listdir(articles_folder):
+
+    for article_file in os.listdir(articles_dir):
         if article_file.endswith('.txt'):
-            # Extract article ID from filename
-            article_id = article_file.replace('.txt', '')  # Get the base name without extension
-            
-            # Check if the article ID exists in the CSV
-            if article_id not in df['URL_ID'].astype(str).values:
-                print(f"Article ID {article_id} not found in CSV. Skipping.")
-                continue
-            
-            # Full path to the article
-            article_path = os.path.join(articles_folder, article_file)
-            
-            # Analyze the article
+            article_id = article_file.replace('.txt', '')
+            article_path = os.path.join(articles_dir, article_file)
             results = analyze_text(article_path, positive_words_file, negative_words_file)
-            
-            # Update the corresponding row in the DataFrame with results
+            # Update the CSV file with the calculated variables result
+
             df.loc[df['URL_ID'].astype(str) == article_id, 'POSITIVE SCORE'] = results['Positive Score']
             df.loc[df['URL_ID'].astype(str) == article_id, 'NEGATIVE SCORE'] = results['Negative Score']
             df.loc[df['URL_ID'].astype(str) == article_id, 'POLARITY SCORE'] = results['Polarity Score']
@@ -183,8 +155,7 @@ def process_articles(articles_folder, positive_words_file, negative_words_file, 
             df.loc[df['URL_ID'].astype(str) == article_id, 'SYLLABLE PER WORD'] = results['Syllables per Word']
             df.loc[df['URL_ID'].astype(str) == article_id, 'PERSONAL PRONOUNS'] = results['Personal Pronouns']
             df.loc[df['URL_ID'].astype(str) == article_id, 'AVG WORD LENGTH'] = results['Average Word Length']
-    
-    # Save the updated DataFrame back to the CSV
+
     df.to_csv(csv_file, index=False)
     print(f"Analysis complete. Results updated in {csv_file}")
 
@@ -192,5 +163,5 @@ def process_articles(articles_folder, positive_words_file, negative_words_file, 
 
 
 
-process_csv(csv_file, save_dir)
-process_articles(articles_folder, positive_words_file, negative_words_file, csv_file)
+process_csv(csv_file, articles_dir)
+process_articles(articles_dir, positive_words_file, negative_words_file, csv_file)
