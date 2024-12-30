@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import re
 
 #Taking Input of Required files
-csv_file = "output.csv" 
+csv_file = "Output Data Structure.csv" 
 articles_dir = "articles"
 positive_words_file = "MasterDictionary\\positive-words.txt"
 negative_words_file = "MasterDictionary\\negative-words.txt"
