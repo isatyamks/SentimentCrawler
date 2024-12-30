@@ -79,7 +79,7 @@ This project was developed by **Satyam Kumar** for **Blackcoffer**.
 ### Connect with me:
 - **LinkedIn**: [linkedin.com/in/isatyamks](https://linkedin.com/in/isatyamks)
 - **GitHub**: [github.com/isatyamks](https://github.com/isatyamks)
-- **Portfolio**: [isatyamks.me](https://isatyamks.vercel.app)
+- **Portfolio**: [isatyamks](https://isatyamks.vercel.app)
 - **Email**: [isatyamks@gmail.com](mailto:isatyamks@gmail.com)
 
 _____________________________________________________________________________________________________________________________________________________________
