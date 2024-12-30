@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import re
-import pandas as pd
+
 def extract_article(url):
     try:
         # Fetch the webpage content
@@ -21,31 +21,50 @@ def extract_article(url):
         # Extract body content (in <p>)
         body_paragraphs = soup.find_all('p')
         body_text = '\n'.join([p.get_text(strip=True) for p in body_paragraphs])
+        
         # Combine all parts into a single article text
         article_text = f"{main_heading}\n\n{subheading_text}\n\n{body_text}"
-        # print(article_text)
         return article_text
     except Exception as e:
         print(f"Error fetching article from {url}: {e}")
-        return None, None
+        return None
 
-def save_to_file(url, article_text, save_dir):
+def save_to_file(file_id, article_text, save_dir):
     try:
-        os.makedirs(save_dir, exist_ok=True)
-        url_suffix = url.split("blackcoffer.com/")[-1]
-        safe_filename = re.sub(r'[<>:"/\\|?*]', '_', url_suffix) 
-        filename = os.path.join(save_dir, f"{safe_filename}.txt")  
+        os.makedirs(save_dir, exist_ok=True)  # Ensure directory exists
+        filename = os.path.join(save_dir, f"{file_id}.txt")  # Use file_id as the filename
         with open(filename, 'w', encoding='utf-8') as file:
             file.write(article_text)
         print(f"Saved article to {filename}")
     except Exception as e:
-        print(f"Error saving file {url}: {e}")
+        print(f"Error saving file {file_id}: {e}")
 
 
-data = read
 
 
-# url_id = "https://insights.blackcoffer.com/ai-and-ml-based-youtube-analytics-and-content-creation-tool-for-optimizing-subscriber-engagement-and-content-strategy"
-# article_text = extract_article(url_id)
-# save_dir = "articles"
-# save_to_file(url_id, article_text, save_dir)
+
+
+def process_csv(csv_file, save_dir):
+    try:
+        with open(csv_file, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)  # Read CSV as a dictionary
+            for row in reader:
+                file_id = row['URL_ID']  # Use the `id` column
+                url = row['URL']  # Use the `url` column
+                print(f"Processing ID: {file_id}, URL: {url}")
+                article_text = extract_article(url)
+                if article_text:
+                    save_to_file(file_id, article_text, save_dir)
+    except Exception as e:
+        print(f"Error processing CSV file {csv_file}: {e}")
+
+# Example usage
+csv_file = "data/input.csv" 
+save_dir = "articles"  
+# url = "https://insights.blackcoffer.com/datawarehouse-and-recommendations-engine-for-airbnb"
+# article_text = extract_article(url)
+
+# file_id = "NETclan20241145"
+# save_to_file(file_id,article_text,save_dir)
+process_csv(csv_file, save_dir)
+
