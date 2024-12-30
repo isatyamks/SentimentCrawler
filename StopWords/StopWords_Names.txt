@@ -1,4 +1,4 @@
-SMITH  | Surnames from 1990 census > .002%.  www.census.gov.genealogy/names/dist.all.last
+SMITH  
 JOHNSON
 WILLIAMS
 JONES
@@ -7498,7 +7498,7 @@ BOJORQUEZ
 BOGGESS
 BANKER
 AUTEN
-JAMES  | http://www.census.gov/genealogy/names/dist.male.first
+JAMES  
 JOHN
 ROBERT
 MICHAEL
@@ -8717,7 +8717,7 @@ DORSEY
 DARELL
 BRODERICK
 ALONSO
-MARY  | http://www.census.gov/genealogy/names/dist.female.first
+MARY  
 PATRICIA
 LINDA
 BARBARA
@@ -12992,7 +12992,7 @@ ANNELLE
 ANGILA
 ALONA
 ALLYN
-LI  |  http://en.wikipedia.org/wiki/List_of_most_common_surnames#China
+LI 
 WANG
 ZHANG
 LIU
