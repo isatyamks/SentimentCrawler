@@ -76,6 +76,10 @@ def preprocess_text(article):
     translator = str.maketrans('', '', string.punctuation)
     return article.translate(translator).lower()
 
+
+#########################################################################################################################################
+#master function to calculate all the variables of each articles 
+
 def analyze_text(article_file, positive_words_file, negative_words_file):
     # Load words and text
     positive_words = load_words(positive_words_file)
@@ -91,18 +95,30 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
     # Calculating all the required variables for each article document
     r=3
     positive_count = sum(1 for word in words if word in positive_words)
+
     negative_count = sum(1 for word in words if word in negative_words)
+
     polarity_score = round((positive_count - negative_count) / ((positive_count + negative_count) + 0.000001),r)
+    
     total_words = len(words) 
+    
     subjectivity_score =  round(((positive_count + negative_count) / total_words),r)
+    
     avg_sentence_length = int(total_words / total_sentences)
+    
     complex_word_count = sum(1 for word in words if count_syllables(word) >= 3)
+    
     percentage_complex_words = round(((complex_word_count / total_words) * 100),r)
+    
     fog_index = round((0.4 * (avg_sentence_length + percentage_complex_words)),r)
+    
     syllables = sum(count_syllables(word) for word in words)
+    
     syllables_per_word = round((syllables / total_words),r)
+    
     pronouns = re.findall(r'\b(I|we|you|he|she|it|they|me|us(?!\b)|him|her|them|my|our|your|his|their)\b', article, re.IGNORECASE) # Using a negative lookahead to avoid matching 'us' as part of 'US'
     personal_pronouns = len(pronouns)
+    
     avg_word_length = int(sum(len(word) for word in words) / total_words)
     
     # Results
@@ -121,7 +137,8 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
         "Personal Pronouns": personal_pronouns,
         "Average Word Length": avg_word_length,
     }
-
+#########################################################################################################################################################
+# Update the CSV file with the calculated variables result
 
 def process_articles(articles_dir, positive_words_file, negative_words_file, csv_file):
     positive_words = load_words(positive_words_file)
@@ -140,7 +157,6 @@ def process_articles(articles_dir, positive_words_file, negative_words_file, csv
             article_id = article_file.replace('.txt', '')
             article_path = os.path.join(articles_dir, article_file)
             results = analyze_text(article_path, positive_words_file, negative_words_file)
-            # Update the CSV file with the calculated variables result
 
             df.loc[df['URL_ID'].astype(str) == article_id, 'POSITIVE SCORE'] = results['Positive Score']
             df.loc[df['URL_ID'].astype(str) == article_id, 'NEGATIVE SCORE'] = results['Negative Score']
@@ -159,9 +175,8 @@ def process_articles(articles_dir, positive_words_file, negative_words_file, csv
     df.to_csv(csv_file, index=False)
     print(f"Analysis complete. Results updated in {csv_file}")
 
-
-
-
+###############################################################################################################
+#calling the fucntiion 
 
 process_csv(csv_file, articles_dir)
 process_articles(articles_dir, positive_words_file, negative_words_file, csv_file)
