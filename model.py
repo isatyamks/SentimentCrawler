@@ -58,6 +58,7 @@ def process_csv(csv_file, articles_dir):
             article_text = extract_article(url)
             if article_text:
                 save_to_file(file_id, article_text, articles_dir)
+    print("\nExtraction of Articles from URL is Successfully Done!\n")
 
 #########################################################################################################
 
@@ -105,9 +106,7 @@ def process_articles_in_folder(folder_path):
             processed_content = process_article(content)
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(processed_content)
-            print(f"Processed: {file_name}")
-
-
+    print("Successfully completed preprocessing articles using NLTK stopwords.\n")
 
 #########################################################################################################################################
 #master function to calculate all the variables of each articles 
