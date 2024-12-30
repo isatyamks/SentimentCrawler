@@ -58,7 +58,13 @@ def process_csv(csv_file, save_dir):
     except Exception as e:
         print(f"Error processing CSV file {csv_file}: {e}")
 
+# Example usage
 csv_file = "data/input.csv" 
 save_dir = "articles"  
+# url = "https://insights.blackcoffer.com/datawarehouse-and-recommendations-engine-for-airbnb"
+# article_text = extract_article(url)
+
+# file_id = "NETclan20241145"
+# save_to_file(file_id,article_text,save_dir)
 process_csv(csv_file, save_dir)
 

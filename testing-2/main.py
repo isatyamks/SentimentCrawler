@@ -3,7 +3,60 @@ import re
 import os
 import csv
 import pandas as pd
-# Utility Function: Count syllables in a word
+import requests
+from bs4 import BeautifulSoup
+import re
+
+
+
+
+
+
+
+csv_file = "input.csv" 
+save_dir = "articles"  
+
+# Example usage
+articles_folder = "articles"  # Folder containing articles
+positive_words_file = "MasterDictionary\\positive-words.txt"
+negative_words_file = "MasterDictionary\\negative-words.txt"
+csv_file = "output.csv"
+
+
+
+def extract_article(url):
+    response = requests.get(url)
+    response.raise_for_status() 
+    soup = BeautifulSoup(response.content, 'html.parser')
+    main_heading = soup.find('h1').get_text(strip=True) if soup.find('h1') else ''
+    subheadings = soup.find_all('strong')
+    subheading_text = '\n'.join([sub.get_text(strip=True) for sub in subheadings])
+    body_paragraphs = soup.find_all('p')
+    body_text = '\n'.join([p.get_text(strip=True) for p in body_paragraphs])
+    article_text = f"{main_heading}\n\n{subheading_text}\n\n{body_text}"
+    return article_text
+
+
+def save_to_file(file_id, article_text, save_dir):
+    os.makedirs(save_dir, exist_ok=True) 
+    filename = os.path.join(save_dir, f"{file_id}.txt")  
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(article_text)
+
+
+def process_csv(csv_file, save_dir):
+    with open(csv_file, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file) 
+        for row in reader:
+            file_id = row['URL_ID'] 
+            url = row['URL'] 
+            print(f"Processing ID: {file_id} is Completed!")
+            article_text = extract_article(url)
+            if article_text:
+                save_to_file(file_id, article_text, save_dir)
+
+
+
 def count_syllables(word):
     word = word.lower()
     vowels = "aeiouy"
@@ -17,66 +70,15 @@ def count_syllables(word):
         syllable_count -= 1
     return max(1, syllable_count)
 
-# Function: Load words from a file
 def load_words(file_path):
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
         return set(file.read().splitlines())
 
 
 
-# Function: Preprocess text
 def preprocess_text(article):
     translator = str.maketrans('', '', string.punctuation)
     return article.translate(translator).lower()
-
-# Function: Calculate Positive Score
-def calculate_positive_score(words, positive_words):
-    return sum(1 for word in words if word in positive_words)
-
-# Function: Calculate Negative Score
-def calculate_negative_score(words, negative_words):
-    return sum(1 for word in words if word in negative_words)
-
-# Function: Calculate Polarity Score
-def calculate_polarity_score(positive_count, negative_count):
-    return (positive_count - negative_count) / ((positive_count + negative_count) + 0.000001)
-
-# Function: Calculate Subjectivity Score
-def calculate_subjectivity_score(positive_count, negative_count, total_words):
-    return (positive_count + negative_count) / total_words
-
-# Function: Calculate Average Sentence Length
-def calculate_avg_sentence_length(total_words, total_sentences):
-    return total_words / total_sentences
-
-# Function: Calculate Percentage of Complex Words
-def calculate_percentage_complex_words(complex_word_count, total_words):
-    return (complex_word_count / total_words) * 100
-
-# Function: Calculate Fog Index
-def calculate_fog_index(avg_sentence_length, percentage_complex_words):
-    return 0.4 * (avg_sentence_length + percentage_complex_words)
-
-# Function: Calculate Complex Word Count
-def calculate_complex_word_count(words):
-    return sum(1 for word in words if count_syllables(word) >= 3)
-
-# Function: Calculate Total Word Count
-def calculate_word_count(words):
-    return len(words)
-
-# Function: Calculate Syllables per Word
-def calculate_syllables_per_word(total_syllables, total_words):
-    return total_syllables / total_words
-
-# Function: Count Personal Pronouns
-def count_personal_pronouns(article):
-    pronouns = re.findall(r'\b(I|we|you|he|she|it|they|me|us|him|her|them|my|our|your|his|their)\b', article, re.IGNORECASE)
-    return len(pronouns)
-
-# Function: Calculate Average Word Length
-def calculate_avg_word_length(total_characters, total_words):
-    return total_characters / total_words
 
 # Master Function to Analyze Text
 def analyze_text(article_file, positive_words_file, negative_words_file):
@@ -89,20 +91,21 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
     total_sentences = len(sentences)
     preprocessed_article = preprocess_text(article)
     words = preprocessed_article.split()
-    
-    # Metrics calculations
-    positive_count = calculate_positive_score(words, positive_words)
-    negative_count = calculate_negative_score(words, negative_words)
-    polarity_score = calculate_polarity_score(positive_count, negative_count)
-    subjectivity_score = calculate_subjectivity_score(positive_count, negative_count, len(words))
-    avg_sentence_length = calculate_avg_sentence_length(len(words), total_sentences)
-    complex_word_count = calculate_complex_word_count(words)
-    percentage_complex_words = calculate_percentage_complex_words(complex_word_count, len(words))
-    fog_index = calculate_fog_index(avg_sentence_length, percentage_complex_words)
+    r=3
+    positive_count = sum(1 for word in words if word in positive_words)
+    negative_count = sum(1 for word in words if word in negative_words)
+    polarity_score = round((positive_count - negative_count) / ((positive_count + negative_count) + 0.000001),r)
+    total_words = len(words) 
+    subjectivity_score =  round(((positive_count + negative_count) / total_words),r)
+    avg_sentence_length = int(total_words / total_sentences)
+    complex_word_count = sum(1 for word in words if count_syllables(word) >= 3)
+    percentage_complex_words = round(((complex_word_count / total_words) * 100),r)
+    fog_index = round((0.4 * (avg_sentence_length + percentage_complex_words)),r)
     syllables = sum(count_syllables(word) for word in words)
-    syllables_per_word = calculate_syllables_per_word(syllables, len(words))
-    personal_pronouns = count_personal_pronouns(article)
-    avg_word_length = calculate_avg_word_length(sum(len(word) for word in words), len(words))
+    syllables_per_word = round((syllables / total_words),r)
+    pronouns = re.findall(r'\b(I|we|you|he|she|it|they|me|us|him|her|them|my|our|your|his|their)\b', article, re.IGNORECASE)
+    personal_pronouns = len(pronouns)
+    avg_word_length = int(sum(len(word) for word in words) / total_words)
     
     # Results
     return {
@@ -120,10 +123,6 @@ def analyze_text(article_file, positive_words_file, negative_words_file):
         "Personal Pronouns": personal_pronouns,
         "Average Word Length": avg_word_length,
     }
-
-
-
-
 
 
 def process_articles(articles_folder, positive_words_file, negative_words_file, csv_file):
@@ -189,16 +188,9 @@ def process_articles(articles_folder, positive_words_file, negative_words_file, 
     df.to_csv(csv_file, index=False)
     print(f"Analysis complete. Results updated in {csv_file}")
 
-# Example usage
-articles_folder = "clean"  # Folder containing articles
-positive_words_file = "MasterDictionary\\positive-words.txt"
-negative_words_file = "MasterDictionary\\negative-words.txt"
-csv_file = "temp.csv"
 
 
 
 
-
-
-
+process_csv(csv_file, save_dir)
 process_articles(articles_folder, positive_words_file, negative_words_file, csv_file)
