@@ -8,6 +8,10 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 
 #Taking Input of Required files
 csv_file = "Output Data Structure.csv" 
@@ -15,6 +19,11 @@ articles_dir = "articles"
 positive_words_file = "MasterDictionary\\positive-words.txt"
 negative_words_file = "MasterDictionary\\negative-words.txt"
 
+
+nltk.download('punkt')
+nltk.download('stopwords')
+
+stop_words = set(stopwords.words('english'))
 
 # This section extracts articles from URLs and saves them in a directory with the URL_ID as the filename
 ###################################################################################################
@@ -75,6 +84,29 @@ def load_words(file_path):
 def preprocess_text(article):
     translator = str.maketrans('', '', string.punctuation)
     return article.translate(translator).lower()
+#########################################################################################################################################
+#using nltk.stopwords to filter stopwords from article
+
+def process_article(article_content):
+    tokens = word_tokenize(article_content)
+    filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
+    return " ".join(filtered_tokens)
+
+def process_articles_in_folder(folder_path):
+    if not os.path.exists(folder_path):
+        print(f"Folder {folder_path} does not exist.")
+        return
+
+    for file_name in os.listdir(folder_path):
+        if file_name.endswith(".txt"):
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, "r", encoding="utf-8") as file:
+                content = file.read()
+            processed_content = process_article(content)
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(processed_content)
+            print(f"Processed: {file_name}")
+
 
 
 #########################################################################################################################################
@@ -179,4 +211,5 @@ def process_articles(articles_dir, positive_words_file, negative_words_file, csv
 #calling the fucntiion 
 
 process_csv(csv_file, articles_dir)
+process_articles_in_folder(articles_dir)
 process_articles(articles_dir, positive_words_file, negative_words_file, csv_file)
