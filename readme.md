@@ -1,6 +1,5 @@
 # Data Extraction and NLP Test Assignment
 
-
 ## Problem Statement
 
 Given a set of URLs, the task is to:
@@ -8,18 +7,17 @@ Given a set of URLs, the task is to:
 2. Perform text analysis to compute various variables.
 3. Update the results into Output Data Structure file.
 
-
 ____________________________________________________________________________________________________________________________________________________
 
-## How i Solve this Problem Statement
+## How I Solved this Problem Statement
 
 ### Step 1: Article Extraction
 To extract text from the given URLs:
 - Used the `requests` library to fetch webpage content.
 - Used `BeautifulSoup` (from `bs4`) to parse HTML and extract:
-  - Main headings (`<h1>` tags).
-  - Subheadings (`<strong>` tags).
-  - Body paragraphs (`<p>` tags).
+   - Main headings (`<h1>` tags).
+   - Subheadings (`<strong>` tags).
+   - Body paragraphs (`<p>` tags).
 - Combined these elements to form the full article text, saved to local `.txt` files for further processing.
 
 ### Step 2: Text Preprocessing
@@ -31,8 +29,8 @@ To prepare the text for analysis:
 Using pre-defined positive and negative word lists:
 - Counted the occurrences of positive and negative words in the text.
 - Calculated:
-  - **Polarity Score**: `(positive count - negative count) / (positive count + negative count)`.
-  - **Subjectivity Score**: `(positive count + negative count) / total words`.
+   - **Polarity Score**: `(positive count - negative count) / (positive count + negative count)`.
+   - **Subjectivity Score**: `(positive count + negative count) / total words`.
 
 ### Step 4: Calculated each variable from the articles documents
 - Positive Score
@@ -57,24 +55,24 @@ To consolidate results:
 
 _________________________________________________________________________________________________________________________________________________________
 
-
 ## How to Run Model.py
 1. Python 3.8+
 2. Install required libraries using:
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 3. Ensure your current directory contains the necessary files and folders as shown in the image below to run `model.py`:
-   ![Directory](image.png)
+    ![Directory](image.png)
 4. Run the script:
-   ```bash
-   python model.py
-   ```
+    ```bash
+    python model.py
+    ```
+
 ____________________________________________________________________________________________________________________________________________________________
 
 ## Project Author
 
-This project was developed by **Satyam Kumar** for **Blackcoffer**.
+This project was developed by **Satyam Kumar** for **Blackcoffer** as part of an internship.
 
 ### Connect with me:
 - **LinkedIn**: [linkedin.com/in/isatyamks](https://linkedin.com/in/isatyamks)
