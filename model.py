@@ -14,9 +14,9 @@ from nltk.tokenize import word_tokenize
 
 
 #Taking Input of Required files
-csv_file = "Output Data Structure.csv" 
+csv_file = "input.csv" 
 articles_dir = "articles"
-positive_words_file = "MasterDictionary\\positive-words.txt"
+positive_words_file = "MasterDictionary\\positive-words.txt"    
 negative_words_file = "MasterDictionary\\negative-words.txt"
 
 
@@ -203,7 +203,8 @@ def process_articles(articles_dir, positive_words_file, negative_words_file, csv
             df.loc[df['URL_ID'].astype(str) == article_id, 'PERSONAL PRONOUNS'] = results['Personal Pronouns']
             df.loc[df['URL_ID'].astype(str) == article_id, 'AVG WORD LENGTH'] = results['Average Word Length']
 
-    df.to_csv(csv_file, index=False)
+    output_csv_file = "output.csv"
+    df.to_csv(output_csv_file, index=False)
     print(f"Analysis complete. Results updated in {csv_file}")
 
 ###############################################################################################################
