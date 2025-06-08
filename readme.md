@@ -62,8 +62,6 @@ ________________________________________________________________________________
      ```bash
      pip install -r requirements.txt
      ```
-3. Ensure your current directory contains the necessary files and folders as shown in the image below to run `model.py`:
-     ![Directory](image.png)
 4. Run the script:
      ```bash
      python model.py
